@@ -1005,7 +1005,6 @@ function buildSchema() {
         <span class="schema-inst-card-icon">${inst.icon}</span>
         <a href="${inst.url}" target="_blank" rel="noopener noreferrer" class="schema-inst-card-name" onclick="event.stopPropagation()">${inst.name}</a>
       </div>
-      <div class="expand-hint" id="hint-${inst.id}">▼ нажмите, чтобы раскрыть кафедры</div>
       <div class="schema-depts">
         ${deptsHTML}
         <div style="margin-top:8px;padding-top:6px;border-top:1px dashed var(--border)">
@@ -1020,7 +1019,6 @@ function buildSchema() {
     card.addEventListener('click', (e) => {
       if (e.target.tagName === 'A') return;
       const isExpanded = card.classList.toggle('expanded');
-      document.getElementById('hint-' + inst.id).style.display = isExpanded ? 'none' : '';
     });
 
     if (inst.category === 'technical') gridTech.appendChild(card);
