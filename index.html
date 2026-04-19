@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>КФУ — Структура: Институты и кафедры</title>
+<style>
+:root {
+  --font: 'Segoe UI', system-ui, sans-serif;
+  --radius: 10px;
+  --transition: 200ms ease;
+}
+[data-theme="light"] {
+  --bg: #f0ede6;
+  --surface: #ffffff;
+  --surface2: #f7f5f0;
+  --border: #e0dbd0;
+  --text: #1a1a1a;
+  --text-muted: #6b6b6b;
+  --accent: #005f73;
+  --accent-light: #e0f0f2;
+  --accent-hover: #004b5a;
+  --active-bg: #005f73;
+  --active-text: #ffffff;
+  --header-bg: #005f73;
+  --header-text: #ffffff;
+  --tag-bg: #e8f4f5;
+  --tag-text: #005f73;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+[data-theme="dark"] {
+  --bg: #111417;
+  --surface: #1c2026;
+  --surface2: #222830;
+  --border: #2e363f;
+  --text: #e8ecf0;
+  --text-muted: #8a96a0;
+  --accent: #4db8bf;
+  --accent-light: #1a2e30;
+  --accent-hover: #3da5ac;
+  --active-bg: #4db8bf;
+  --active-text: #0d1a1c;
+  --header-bg: #0e1f22;
+  --header-text: #e8ecf0;
+  --tag-bg: #1a2e30;
+  --tag-text: #4db8bf;
+  --shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text);}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+
+/* HEADER */
+.header {
+  display:flex; align-items:center; justify-content:space-between;
+  background:var(--header-bg); color:var(--header-text);
+  padding: 0 24px; height: 60px;
+  position: sticky; top:0; z-index:100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.header-left { display:flex; align-items:center; gap:14px; }
+.logo-box {
+  width:36px; height:36px; border-radius:9px;
+  background:rgba(255,255,255,0.2);
+  display:grid; place-items:center; font-weight:800; font-size:14px;
+  letter-spacing:-0.5px; color:#fff;
+}
+.header h1 { font-size:17px; font-weight:700; color:var(--header-text); }
+.header p { font-size:12px; opacity:.7; color:var(--header-text); }
+.header-actions { display:flex; gap:10px; }
+.hbtn {
+  border:1px solid rgba(255,255,255,0.3); background:transparent;
+  color:var(--header-text); border-radius:20px;
+  padding:7px 16px; font-size:13px; cursor:pointer;
+  transition: all var(--transition);
+}
+.hbtn:hover { background:rgba(255,255,255,0.15); }
+.hbtn.tab-active { background:rgba(255,255,255,0.22); border-color:rgba(255,255,255,0.6); font-weight:600; }
+
+/* ===== СХЕМА КФУ ===== */
+#schemaPage {
+  display:none; overflow-y:auto;
+  background:var(--bg); padding:32px 24px 48px;
+}
+#schemaPage.active { display:block; }
+.schema-title {
+  text-align:center; margin-bottom:32px;
+}
+.schema-title h2 { font-size:28px; font-weight:800; margin-bottom:6px; }
+.schema-title p { color:var(--text-muted); font-size:15px; }
+
+/* Уровень 1 — КФУ */
+.schema-root {
+  display:flex; justify-content:center; margin-bottom:0;
+}
+.schema-root-node {
+  background:var(--accent); color:#fff;
+  border-radius:14px; padding:16px 40px;
+  font-size:20px; font-weight:800; letter-spacing:.02em;
+  box-shadow: 0 4px 18px rgba(0,95,115,0.35);
+  cursor:default;
+}
+
+/* Вертикальная линия от корня */
+.schema-vline {
+  width:2px; height:32px; background:var(--border);
+  margin: 0 auto;
+}
+/* Горизонтальная линия между блоками */
+.schema-hline-wrap {
+  display:flex; justify-content:center; position:relative;
+}
+.schema-hline {
+  position:absolute; top:0; left:50%; transform:translateX(-50%);
+  width:calc(50% + 80px); height:2px; background:var(--border);
+}
+.schema-branches {
+  display:flex; gap:48px; justify-content:center;
+  position:relative;
+}
+.schema-branch { display:flex; flex-direction:column; align-items:center; flex:1; max-width:740px; }
+.schema-branch-vline { width:2px; height:28px; background:var(--border); margin:0 auto; }
+
+/* Уровень 2 — блоки технические/гуманитарные */
+.schema-cat-node {
+  border-radius:12px; padding:12px 28px;
+  font-size:15px; font-weight:700;
+  border:2px solid; margin-bottom:0;
+  cursor:default;
+}
+.schema-cat-node.tech { background:#e0f0f2; border-color:#005f73; color:#005f73; }
+.schema-cat-node.hum  { background:#f2ece0; border-color:#a05c00; color:#8a4800; }
+[data-theme="dark"] .schema-cat-node.tech { background:#1a2e30; border-color:#4db8bf; color:#4db8bf; }
+[data-theme="dark"] .schema-cat-node.hum  { background:#2a2014; border-color:#d49040; color:#d49040; }
+
+/* Уровень 3 — сетка институтов */
+.schema-inst-grid {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:10px;
+  width:100%; padding:0 4px;
+}
+.schema-inst-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:10px; padding:10px 12px;
+  cursor:pointer; transition:all 200ms ease;
+}
+.schema-inst-card:hover {
+  border-color:var(--accent); box-shadow:0 2px 10px rgba(0,95,115,0.15);
+  transform:translateY(-2px);
+}
+.schema-inst-card-head {
+  display:flex; align-items:center; gap:8px; margin-bottom:6px;
+}
+.schema-inst-card-icon { font-size:18px; }
+.schema-inst-card-name { font-size:12px; font-weight:700; line-height:1.3; color:var(--text); }
+.schema-inst-card a.site-link {
+  font-size:11px; color:var(--accent); display:inline-block;
+}
+
+/* Уровень 4 — кафедры раскрывающиеся */
+.schema-depts { display:none; margin-top:8px; border-top:1px solid var(--border); padding-top:8px; }
+.schema-inst-card.expanded .schema-depts { display:block; }
+.schema-inst-card.expanded { border-color:var(--accent); background:var(--surface2); }
+.schema-sect-label {
+  font-size:10px; text-transform:uppercase; letter-spacing:.08em;
+  color:var(--text-muted); font-weight:700; margin:6px 0 4px;
+}
+.schema-kaf-item {
+  display:flex; align-items:flex-start; gap:5px; margin-bottom:3px;
+}
+.schema-kaf-dot { width:5px; height:5px; border-radius:50%; background:var(--accent); flex:0 0 auto; margin-top:5px; }
+.schema-kaf-item a { font-size:11px; color:var(--text); line-height:1.4; }
+.schema-kaf-item a:hover { color:var(--accent); }
+.expand-hint { font-size:10px; color:var(--text-muted); margin-top:4px; }
+
+.schema-connector-area {
+  display:flex; position:relative; margin:0 auto;
+  width:100%;
+}
+.schema-line-down {
+  width:2px; height:24px; background:var(--border); margin:0 auto;
+}
+@media (max-width:1100px) {
+  .schema-branches { flex-direction:column; align-items:center; gap:24px; }
+  .schema-branch { max-width:100%; }
+  .schema-inst-grid { grid-template-columns:repeat(2,1fr); }
+  .schema-hline { display:none; }
+}
+@media (max-width:700px) {
+  .schema-inst-grid { grid-template-columns:1fr; }
+  #schemaPage { padding:20px 12px 40px; }
+}
+
+/* LAYOUT */
+.layout {
+  display:grid; grid-template-columns: 330px 1fr;
+  height: calc(100vh - 60px);
+}
+
+/* LEFT PANEL */
+.left-panel {
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  display:flex; flex-direction:column;
+  overflow:hidden;
+}
+.panel-header {
+  padding:16px 20px 12px;
+  border-bottom:1px solid var(--border);
+  background:var(--surface2);
+}
+.panel-header h2 { font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); margin-bottom:10px; }
+.search-box {
+  display:flex; align-items:center; gap:8px;
+  background:var(--bg); border:1px solid var(--border);
+  border-radius:8px; padding:8px 12px;
+}
+.search-box input {
+  border:none; background:transparent; color:var(--text); font-size:14px; width:100%; outline:none;
+}
+.search-box input::placeholder { color:var(--text-muted); }
+.inst-count {
+  font-size:12px; color:var(--text-muted); padding:8px 20px 6px;
+}
+.inst-list {
+  flex:1; overflow-y:auto; padding:8px 12px 16px;
+}
+.inst-item {
+  display:flex; align-items:flex-start; gap:10px;
+  padding:12px 14px; border-radius:var(--radius);
+  cursor:pointer; transition:all var(--transition);
+  border:1px solid transparent; margin-bottom:4px;
+}
+.inst-item:hover { background:var(--accent-light); border-color:var(--border); }
+.inst-item.active {
+  background:var(--active-bg); color:var(--active-text);
+  border-color:var(--active-bg);
+}
+.inst-item.active .inst-name { color:var(--active-text); }
+.inst-item.active .inst-meta { color:rgba(255,255,255,0.65); }
+.inst-item.active .inst-num { background:rgba(255,255,255,0.25); color:#fff; }
+.inst-icon {
+  width:32px; height:32px; border-radius:8px; flex:0 0 auto;
+  display:grid; place-items:center; font-size:16px;
+  background:var(--accent-light);
+}
+.inst-item.active .inst-icon { background:rgba(255,255,255,0.2); }
+.inst-info { flex:1; min-width:0; }
+.inst-name { font-size:14px; font-weight:600; line-height:1.4; }
+.inst-meta { font-size:12px; color:var(--text-muted); margin-top:2px; }
+.inst-num {
+  flex:0 0 auto; font-size:11px; font-weight:700;
+  background:var(--accent-light); color:var(--accent);
+  border-radius:20px; padding:3px 9px; min-width:28px; text-align:center;
+}
+.cat-separator {
+  font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em;
+  color:var(--accent); background:var(--accent-light);
+  padding:6px 14px; border-radius:6px; margin:8px 0 4px;
+}
+
+/* RIGHT PANEL */
+.right-panel {
+  background:var(--surface2);
+  overflow-y:auto;
+  padding:28px 32px;
+}
+.welcome-screen {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  height:100%; text-align:center; color:var(--text-muted); gap:16px;
+}
+.welcome-screen .big-icon { font-size:64px; }
+.welcome-screen h2 { font-size:24px; font-weight:700; color:var(--text); }
+.welcome-screen p { font-size:15px; max-width:400px; line-height:1.6; }
+
+/* DEPT SECTION */
+.dept-view { display:none; }
+.dept-view.active { display:block; }
+.dept-header {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius); padding:20px 24px; margin-bottom:24px;
+  box-shadow:var(--shadow);
+}
+.dept-header-top { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
+.dept-title-block { flex:1; }
+.dept-icon-big { font-size:40px; margin-bottom:8px; }
+.dept-title { font-size:22px; font-weight:800; line-height:1.2; margin-bottom:6px; }
+.dept-title a { color:var(--text); }
+.dept-title a:hover { color:var(--accent); text-decoration:none; }
+.dept-subtitle { font-size:14px; color:var(--text-muted); line-height:1.5; }
+.dept-badge {
+  flex:0 0 auto; background:var(--accent-light); color:var(--accent);
+  border-radius:20px; padding:6px 16px; font-size:13px; font-weight:700;
+  white-space:nowrap;
+}
+.dept-tags { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+.dept-tag {
+  background:var(--tag-bg); color:var(--tag-text);
+  font-size:12px; padding:4px 12px; border-radius:20px; font-weight:500;
+}
+.open-site-btn {
+  display:inline-flex; align-items:center; gap:6px;
+  background:var(--accent); color:#fff;
+  border-radius:8px; padding:8px 18px; font-size:13px; font-weight:600;
+  margin-top:14px; transition:background var(--transition);
+}
+.open-site-btn:hover { background:var(--accent-hover); text-decoration:none; }
+
+.sections-label {
+  font-size:12px; text-transform:uppercase; letter-spacing:.08em;
+  color:var(--text-muted); margin-bottom:14px;
+}
+.dept-section { margin-bottom:24px; }
+.section-title {
+  font-size:14px; font-weight:700; text-transform:uppercase;
+  letter-spacing:.06em; color:var(--text-muted);
+  padding:6px 0 10px; border-bottom:1px solid var(--border);
+  margin-bottom:12px;
+}
+.kaf-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:10px; }
+.kaf-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius); padding:14px 16px;
+  transition:all var(--transition);
+  display:flex; align-items:flex-start; gap:10px;
+}
+.kaf-card:hover { box-shadow:var(--shadow); border-color:var(--accent); transform:translateY(-1px); }
+.kaf-dot {
+  width:8px; height:8px; border-radius:50%;
+  background:var(--accent); flex:0 0 auto; margin-top:5px;
+}
+.kaf-card a { font-size:14px; font-weight:500; line-height:1.5; color:var(--text); }
+.kaf-card a:hover { color:var(--accent); text-decoration:none; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+@media (max-width:900px) {
+  .layout { grid-template-columns:1fr; grid-template-rows:auto 1fr; }
+  .left-panel { max-height:320px; border-right:none; border-bottom:1px solid var(--border); }
+  .right-panel { padding:20px; }
+  .kaf-grid { grid-template-columns:1fr; }
+}
+@media print {
+  .header .header-actions, .search-box { display:none; }
+  .layout { display:block; }
+  .left-panel { display:none; }
+  .right-panel { padding:0; }
+  .dept-view { display:block !important; page-break-after:always; }
+  .welcome-screen { display:none; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <div class="logo-box">КФУ</div>
+    <div>
+      <h1>Казанский федеральный университет</h1>
+      <p>Структура: институты и кафедры</p>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="hbtn tab-active" id="btnSchema" onclick="switchTab('schema')">📊 Схема КФУ</button>
+    <button class="hbtn" id="btnCatalog" onclick="switchTab('catalog')">📋 Каталог</button>
+    <button class="hbtn" data-theme-toggle>🌙 Тема</button>
+    <button class="hbtn" onclick="window.print()">🖨 Печать</button>
+  </div>
+</header>
+
+<div id="schemaPage" class="active">
+  <div class="schema-title">
+    <h2>Структура КФУ</h2>
+    <p>Кликните на карточку института, чтобы раскрыть кафедры и отделения. Названия ведут на официальный сайт КФУ.</p>
+  </div>
+
+  <!-- Уровень 1: КФУ -->
+  <div class="schema-root">
+    <a href="https://kpfu.ru" target="_blank" rel="noopener noreferrer" class="schema-root-node" style="text-decoration:none;">
+      🏛 Казанский федеральный университет (КФУ)
+    </a>
+  </div>
+  <div class="schema-vline"></div>
+
+  <!-- Линия к двум ветвям -->
+  <div class="schema-hline-wrap">
+    <div class="schema-hline"></div>
+  </div>
+
+  <!-- Уровень 2: два блока -->
+  <div class="schema-branches" id="schemaBranches">
+    <!-- Технические -->
+    <div class="schema-branch">
+      <div class="schema-branch-vline"></div>
+      <div class="schema-cat-node tech">🔬 Технические институты</div>
+      <div class="schema-line-down"></div>
+      <div class="schema-inst-grid" id="schemaGridTech"></div>
+    </div>
+    <!-- Гуманитарные -->
+    <div class="schema-branch">
+      <div class="schema-branch-vline"></div>
+      <div class="schema-cat-node hum">📚 Гуманитарные институты</div>
+      <div class="schema-line-down"></div>
+      <div class="schema-inst-grid" id="schemaGridHum"></div>
+    </div>
+  </div>
+</div>
+
+<div class="layout" id="catalogPage" style="display:none;">
+  <!-- LEFT: список институтов -->
+  <aside class="left-panel">
+    <div class="panel-header">
+      <h2>Институты и факультеты</h2>
+      <div class="search-box">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="searchInput" placeholder="Поиск института…" oninput="filterInstitutes(this.value)"/>
+      </div>
+    </div>
+    <div class="inst-count" id="instCount">16 подразделений</div>
+    <div class="inst-list" id="instList"></div>
+  </aside>
+
+  <!-- RIGHT: кафедры выбранного института -->
+  <div class="right-panel" id="rightPanel">
+    <div class="welcome-screen" id="welcomeScreen">
+      <div class="big-icon">🏛️</div>
+      <h2>Выберите институт</h2>
+      <p>Нажмите на название института или факультета в левой панели, чтобы увидеть его кафедры.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const INSTITUTES = [
+  {
+    id: "geology",
+    name: "Институт геологии и нефтегазовых технологий",
+    category: "technical",
+    icon: "🪨",
+    url: "https://kpfu.ru/geology-oil",
+    depts_url: "https://kpfu.ru/geology-oil/struktura/kafedry",
+    tags: ["Геология", "Нефтегаз", "Геофизика"],
+    sections: [
+      {
+        title: null,
+        kafedry: [
+          { name: "Кафедра минералогии и литологии", url: "https://kpfu.ru/geology-oil/struktura/kafedry" },
+          { name: "Кафедра общей геологии и гидрогеологии", url: "https://geo.kpfu.ru/kafedra-obshhej-geologii-i-gidrogeologii/" },
+          { name: "Кафедра палеонтологии и стратиграфии", url: "https://kpfu.ru/geology-oil/struktura/kafedry" },
+          { name: "Кафедра геологии нефти и газа им. А.А. Трофимука", url: "https://geo.kpfu.ru/kafedra-geologii-nefti-i-gaza-im-a-a-trofimuka/" },
+          { name: "Кафедра региональной геологии и полезных ископаемых", url: "https://kpfu.ru/geology-oil/struktura/kafedry" },
+          { name: "Кафедра геофизики и геоинформационных технологий", url: "https://kpfu.ru/geology-oil/struktura/kafedry" },
+          { name: "Кафедра высоковязких нефтей и природных битумов", url: "https://kpfu.ru/geology-oil/struktura/kafedry" },
+          { name: "Кафедра метрологии и средств измерения расхода нефти и газа", url: "https://kpfu.ru/geology-oil/struktura/kafedry" },
+          { name: "Кафедра разработки и эксплуатации месторождений трудноизвлекаемых углеводородов", url: "https://kpfu.ru/geology-oil/struktura/kafedry" },
+          { name: "Кафедра химии нефти", url: "https://kpfu.ru/geology-oil/struktura/kafedry" },
+        ]
+      }
+    ]
+  },
+  {
+    id: "math",
+    name: "Институт математики и механики им. Н.И. Лобачевского",
+    category: "technical",
+    icon: "📐",
+    url: "https://kpfu.ru/math",
+    depts_url: "https://kpfu.ru/math/strctre",
+    tags: ["Математика", "Механика", "Статистика"],
+    sections: [
+      {
+        title: "Отделение математики",
+        kafedry: [
+          { name: "Кафедра геометрии", url: "https://kpfu.ru/math/strctre/mathdep/geom" },
+          { name: "Кафедра теории функций и приближений", url: "https://kpfu.ru/math/strctre/mathdep/tfip" },
+          { name: "Кафедра математической статистики", url: "https://kpfu.ru/math/struktura/kafedry/kafedra-matematicheskoj-statistiki" },
+          { name: "Кафедра общей математики", url: "https://kpfu.ru/math/strctre/mathdep/kom/prepodavaemye-discipliny" },
+          { name: "Кафедра алгебры и математической логики", url: "https://kpfu.ru/math/strctre/mathdep" },
+          { name: "Кафедра математического анализа", url: "https://kpfu.ru/math/strctre/mathdep" },
+        ]
+      },
+      {
+        title: "Отделение механики",
+        kafedry: [
+          { name: "Кафедра теоретической механики", url: "https://kpfu.ru/math/strctre/mech/solid" },
+          { name: "Кафедра аэрогидромеханики", url: "https://kpfu.ru/math/strctre/mech" },
+        ]
+      }
+    ]
+  },
+  {
+    id: "physics",
+    name: "Институт физики",
+    category: "technical",
+    icon: "⚛️",
+    url: "https://kpfu.ru/physics",
+    depts_url: "https://kpfu.ru/physics/struktura/kafedry",
+    tags: ["Физика", "Радиофизика", "Оптика"],
+    sections: [
+      {
+        title: null,
+        kafedry: [
+          { name: "Кафедра общей физики", url: "https://kpfu.ru/physics/struktura/kafedry" },
+          { name: "Кафедра теоретической физики", url: "https://kpfu.ru/physics/struktura/kafedry" },
+          { name: "Кафедра физики твёрдого тела", url: "https://kpfu.ru/physics/struktura/kafedry" },
+          { name: "Кафедра радиофизики", url: "https://kpfu.ru/physics/struktura/kafedry" },
+          { name: "Кафедра оптики и нанофотоники", url: "https://kpfu.ru/physics/struktura/kafedry" },
+          { name: "Кафедра астрономии и космической геодезии", url: "https://kpfu.ru/physics/struktura/kafedry" },
+          { name: "Кафедра вычислительной физики", url: "https://kpfu.ru/physics/struktura/kafedry" },
+        ]
+      }
+    ]
+  },
+  {
+    id: "chemistry",
+    name: "Химический институт им. А.М. Бутлерова",
+    category: "technical",
+    icon: "🧪",
+    url: "https://kpfu.ru/chemistry",
+    depts_url: "https://kpfu.ru/chemistry/struktura/kafedry",
+    tags: ["Химия", "Органика", "Биохимия"],
+    sections: [
+      {
+        title: null,
+        kafedry: [
+          { name: "Кафедра аналитической химии", url: "https://kpfu.ru/chemistry/struktura/kafedry/kafedra-analiticheskoj-himii" },
+          { name: "Кафедра высокомолекулярных и элементоорганических соединений", url: "https://kpfu.ru/chemistry/struktura/kafedry" },
+          { name: "Кафедра неорганической химии", url: "https://kpfu.ru/chemistry/struktura/kafedry/kafedra-neorganicheskoj-himii" },
+          { name: "Кафедра органической и медицинской химии", url: "https://kpfu.ru/chemistry/struktura/kafedry" },
+          { name: "Кафедра физической химии", url: "https://kpfu.ru/chemistry/struktura/kafedry" },
+          { name: "Кафедра химического образования", url: "https://kpfu.ru/chemistry/struktura/kafedry/kafedra-himicheskogo-obrazovaniya" },
+        ]
+      }
+    ]
+  },
+  {
+    id: "ivmit",
+    name: "ИВМиИТ — Институт вычислительной математики и информационных технологий",
+    category: "technical",
+    icon: "💻",
+    url: "https://kpfu.ru/computing-technology",
+    depts_url: "https://kpfu.ru/computing-technology/struktura/kafedry",
+    tags: ["Информатика", "Программирование", "ИТ"],
+    sections: [
+      {
+        title: null,
+        kafedry: [
+          { name: "Кафедра вычислительной математики", url: "https://kpfu.ru/computing-technology/struktura/kafedry/kafedra-vychislitelnoj-matematiki/kafedra-vychislitelnoj-matematiki-1815.html" },
+          { name: "Кафедра информационных систем", url: "https://kpfu.ru/computing-technology/struktura/kafedry/kafedra-informacionnyh-sistem/kafedra-informacionnyh-sistem-1843.html" },
+          { name: "Кафедра прикладной математики и искусственного интеллекта", url: "https://kpfu.ru/computing-technology/struktura/kafedry" },
+          { name: "Кафедра теоретической кибернетики", url: "https://kpfu.ru/computing-technology/struktura/kafedry" },
+          { name: "Кафедра анализа данных и технологий программирования", url: "https://kpfu.ru/computing-technology/struktura/kafedry" },
+        ]
+      }
+    ]
+  },
+  {
+    id: "itis",
+    name: "ИТИС — Институт информационных технологий и интеллектуальных систем",
+    category: "technical",
+    icon: "🤖",
+    url: "https://kpfu.ru/itis",
+    depts_url: "https://kpfu.ru/itis/struktura-itis-123077/kafedry",
+    tags: ["ИИ", "Программная инженерия", "Робототехника"],
+    sections: [
+      {
+        title: null,
+        kafedry: [
+          { name: "Кафедра программной инженерии", url: "https://kpfu.ru/itis/struktura-itis-123077/kafedry" },
+          { name: "Кафедра интеллектуальной робототехники", url: "https://kpfu.ru/itis/struktura-itis-123077/kafedry" },
+          { name: "Кафедра цифровой аналитики и технологий искусственного интеллекта", url: "https://kpfu.ru/itis/struktura-itis-123077/kafedry" },
+          { name: "Кафедра индустрии разработки видеоигр", url: "https://kpfu.ru/itis/struktura-itis-123077/kafedry" },
+        ]
+      }
+    ]
+  },
+  {
+    id: "iirsi",
+    name: "ИИРСИ — Институт искусственного интеллекта, робототехники и системной инженерии",
+    category: "technical",
+    icon: "🦾",
+    url: "https://kpfu.ru/engineer",
+    depts_url: "https://kpfu.ru/engineer/struktura",
+    tags: ["ИИ", "Инжиниринг", "Биомедицина"],
+    sections: [
+      {
+        title: null,
+        kafedry: [
+          { name: "Кафедра робототехники и искусственного интеллекта", url: "https://kpfu.ru/engineer/struktura/kafedry/department-of-robotics-and-artificial-intelligence" },
+          { name: "Кафедра биомедицинской инженерии и ИИ в биотехнических системах", url: "https://kpfu.ru/engineer/struktura" },
+          { name: "Кафедра физики перспективных технологий и материаловедения", url: "https://kpfu.ru/engineer/struktura" },
+          { name: "Кафедра искусственного интеллекта и когнитологии", url: "https://kpfu.ru/engineer/struktura" },
+          { name: "Кафедра технологического предпринимательства", url: "https://kpfu.ru/engineer/struktura" },
+        ]
+      }
+    ]
+  },
+  {
+    id: "ifmib",
+    name: "ИФМиБ — Институт фундаментальной медицины и биологии",
+    category: "technical",
+    icon: "🔬",
+    url: "https://kpfu.ru/biology-medicine",
+    depts_url: "https://kpfu.ru/biology-medicine/struktura-instituta",
+    tags: ["Медицина", "Биология", "Биотехнологии"],
+    sections: [
+      {
+        title: "Высшая школа медицины",
+        kafedry: [
+          { name: "Кафедра охраны здоровья человека", url: "https://kpfu.ru/biology-medicine/struktura-instituta" },
+          { name: "Кафедра морфологии и общей патологии", url: "https://kpfu.ru/biology-medicine/struktura-instituta" },
+          { name: "Кафедра биоэкологии, гигиены и общественного здоровья", url: "https://kpfu.ru/biology-medicine/struktura-instituta" },
+          { name: "Кафедра неотложной медицинской помощи и симуляционной медицины", url: "https://kpfu.ru/biology-medicine/struktura-instituta" },
+          { name: "Кафедра стоматологии и имплантологии", url: "https://kpfu.ru/biology-medicine/struktura-instituta" },
+          { name: "Кафедра фундаментальных основ клинической медицины", url: "https://kpfu.ru/biology-medicine/struktura-instituta/kafedry/kafedra-fundamentalnyh-osnov-klinicheskoj-mediciny/kafedra-fundamentalnyh-osnov-klinicheskoj-mediciny" },
+          { name: "Кафедра хирургии, акушерства и гинекологии", url: "https://kpfu.ru/biology-medicine/struktura-instituta" },
+        ]
+      },
+      {
+        title: "Высшая школа биологии",
+        kafedry: [
+          { name: "Кафедра физиологии человека и животных", url: "https://kpfu.ru/biology-medicine/struktura-instituta" },
+          { name: "Кафедра зоологии и общей биологии", url: "https://kpfu.ru/biology-medicine/struktura-instituta" },
+          { name: "Кафедра ботаники и физиологии растений", url: "https://kpfu.ru/biology-medicine/struktura-instituta/kafedry/kafedra-fiziologii-i-biohimii-rastenij" },
+          { name: "Кафедра биохимии, биотехнологии и фармакологии", url: "https://kpfu.ru/biology-medicine/struktura-instituta/kafedry/kafedra-biohimii" },
+          { name: "Кафедра теории и методики физической культуры, спорта и ЛФК", url: "https://kpfu.ru/biology-medicine/struktura-instituta" },
+        ]
+      }
+    ]
+  },
+  {
+    id: "ecology",
+    name: "Институт экологии, биотехнологии и природопользования",
+    category: "technical",
+    icon: "🌿",
+    url: "https://kpfu.ru/ecology",
+    depts_url: "https://kpfu.ru/ecology/struktura",
+    tags: ["Экология", "Природопользование", "Биотехнологии"],
+    sections: [
+      {
+        title: null,
+        kafedry: [
+          { name: "Кафедра общей экологии", url: "https://kpfu.ru/ecology/struktura/otdelenie-ekologii/kafedra-obschej-ekologii" },
+          { name: "Кафедра моделирования экологических систем", url: "https://kpfu.ru/ecology/struktura" },
+          { name: "Кафедра почвоведения им. И.В. Тюрина", url: "https://kpfu.ru/ecology/struktura" },
+          { name: "Кафедра метеорологии, климатологии и экологии атмосферы", url: "https://kpfu.ru/ecology/struktura" },
+          { name: "Кафедра прикладной экологии", url: "https://kpfu.ru/ecology/struktura" },
+        ]
+      }
+    ]
+  },
+  {
+    id: "law",
+    name: "Юридический факультет",
+    category: "humanitarian",
+    icon: "⚖️",
+    url: "https://kpfu.ru/law",
+    depts_url: "https://kpfu.ru/law/struktura/kafedry",
+    tags: ["Право", "Юриспруденция"],
+    sections: [
+      {
+        title: null,
+        kafedry: [
+          { name: "Кафедра гражданского права", url: "https://kpfu.ru/law/struktura/kafedry" },
+          { name: "Кафедра конституционного и административного права", url: "https://kpfu.ru/law/struktura/kafedry" },
+          { name: "Кафедра международного и европейского права", url: "https://kpfu.ru/law/struktura/kafedry" },
+          { name: "Кафедра предпринимательского и энергетического права", url: "https://kpfu.ru/law/struktura/kafedry" },
+          { name: "Кафедра теории и истории государства и права", url: "https://kpfu.ru/law/struktura/kafedry" },
+          { name: "Кафедра теории и методики обучения праву", url: "https://kpfu.ru/law/struktura/kafedry" },
+          { name: "Кафедра уголовного права", url: "https://kpfu.ru/law/struktura/kafedry" },
+          { name: "Кафедра уголовного процесса и криминалистики", url: "https://kpfu.ru/law/struktura/kafedry" },
+          { name: "Кафедра экологического, трудового права и гражданского процесса", url: "https://kpfu.ru/law/struktura/kafedry" },
+        ]
+      }
+    ]
+  },
+  {
+    id: "imoiv",
+    name: "ИМОИиВ — Институт международных отношений, истории и востоковедения",
+    category: "humanitarian",
+    icon: "🌍",
+    url: "https://kpfu.ru/imoiv",
+    depts_url: "https://kpfu.ru/imoiv/struktura",
+    tags: ["История", "МО", "Востоковедение"],
+    sections: [
+      {
+        title: "Высшая школа востоковедения",
+        kafedry: [
+          { name: "Кафедра арабистики, исламоведения и афро-азиатских исследований", url: "https://kpfu.ru/imoiv/struktura" },
+          { name: "Кафедра китаеведения и азиатско-тихоокеанских исследований", url: "https://kpfu.ru/imoiv/struktura" },
+          { name: "Кафедра алтаистики, тюркских и центральноазиатских исследований", url: "https://kpfu.ru/imoiv/struktura" },
+          { name: "Кафедра международных экономических отношений", url: "https://kpfu.ru/imoiv/struktura" },
+        ]
+      },
+      {
+        title: "Высшая школа международных отношений и мировой истории",
+        kafedry: [
+          { name: "Кафедра международных отношений, мировой политики и дипломатии", url: "https://kpfu.ru/imoiv/struktura" },
+          { name: "Кафедра всеобщей и публичной истории", url: "https://kpfu.ru/imoiv/struktura" },
+          { name: "Кафедра всемирного культурного наследия", url: "https://kpfu.ru/imoiv/struktura" },
+          { name: "Кафедра отечественной истории и архивоведения", url: "https://kpfu.ru/imoiv/struktura" },
+          { name: "Кафедра регионоведения и цифровой гуманитаристики", url: "https://kpfu.ru/imoiv/struktura" },
+          { name: "Кафедра исторического и обществоведческого образования", url: "https://kpfu.ru/imoiv/struktura" },
+          { name: "Кафедра археологии и этнологии", url: "https://kpfu.ru/imoiv/struktura" },
+          { name: "Кафедра истории Татарстана", url: "https://kpfu.ru/imoiv/struktura" },
+        ]
+      },
+      {
+        title: "Высшая школа иностранных языков и перевода",
+        kafedry: [
+          { name: "Кафедра теории и практики перевода", url: "https://kpfu.ru/imoiv/struktura" },
+          { name: "Кафедра европейских языков и культур", url: "https://kpfu.ru/imoiv/struktura" },
+          { name: "Кафедра иностранных языков в сфере международных отношений", url: "https://kpfu.ru/imoiv/struktura" },
+          { name: "Кафедра иностранных языков", url: "https://kpfu.ru/imoiv/struktura" },
+          { name: "Кафедра лингвистического образования для иностранных студентов", url: "https://kpfu.ru/imoiv/struktura" },
+        ]
+      }
+    ]
+  },
+  {
+    id: "iuef",
+    name: "ИУЭФ — Институт управления, экономики и финансов",
+    category: "humanitarian",
+    icon: "💼",
+    url: "https://kpfu.ru/institutes/institut-upravleniya-ekonomiki-i-finansov",
+    depts_url: "https://kpfu.ru/institutes/institut-upravleniya-ekonomiki-i-finansov/struktura/kafedry",
+    tags: ["Экономика", "Финансы", "Управление"],
+    sections: [
+      {
+        title: null,
+        kafedry: [
+          { name: "Кафедра учёта, анализа и аудита", url: "https://kpfu.ru/institutes/institut-upravleniya-ekonomiki-i-finansov/struktura/kafedry" },
+          { name: "Кафедра экономической теории и эконометрики", url: "https://kpfu.ru/institutes/institut-upravleniya-ekonomiki-i-finansov/struktura/kafedry" },
+          { name: "Кафедра финансовых рынков и финансовых институтов", url: "https://kpfu.ru/institutes/institut-upravleniya-ekonomiki-i-finansov/struktura/kafedry" },
+          { name: "Кафедра управления корпоративными финансами", url: "https://kpfu.ru/institutes/institut-upravleniya-ekonomiki-i-finansov/struktura/kafedry" },
+          { name: "Кафедра управления человеческими ресурсами", url: "https://kpfu.ru/institutes/institut-upravleniya-ekonomiki-i-finansov/struktura/kafedry" },
+          { name: "Кафедра мировой и региональной экономики", url: "https://kpfu.ru/institutes/institut-upravleniya-ekonomiki-i-finansov/struktura/kafedry" },
+          { name: "Кафедра государственного и муниципального управления", url: "https://kpfu.ru/institutes/institut-upravleniya-ekonomiki-i-finansov/struktura/kafedry" },
+          { name: "Кафедра туризма и гостиничного дела", url: "https://kpfu.ru/institutes/institut-upravleniya-ekonomiki-i-finansov/struktura/kafedry" },
+          { name: "Кафедра экономической безопасности и налогообложения", url: "https://kpfu.ru/institutes/institut-upravleniya-ekonomiki-i-finansov/struktura/kafedry" },
+          { name: "Кафедра экономики производства", url: "https://kpfu.ru/institutes/institut-upravleniya-ekonomiki-i-finansov/struktura/kafedry" },
+          { name: "Кафедра проектного менеджмента и оценки бизнеса", url: "https://kpfu.ru/institutes/institut-upravleniya-ekonomiki-i-finansov/struktura/kafedry" },
+          { name: "Кафедра инноваций и инвестиций", url: "https://kpfu.ru/institutes/institut-upravleniya-ekonomiki-i-finansov/struktura/kafedry" },
+          { name: "Кафедра маркетинга", url: "https://kpfu.ru/institutes/institut-upravleniya-ekonomiki-i-finansov/struktura/kafedry" },
+          { name: "Кафедра менеджмента в социальной сфере", url: "https://kpfu.ru/institutes/institut-upravleniya-ekonomiki-i-finansov/struktura/kafedry" },
+          { name: "Кафедра общего менеджмента", url: "https://kpfu.ru/institutes/institut-upravleniya-ekonomiki-i-finansov/struktura/kafedry" },
+          { name: "Кафедра иностранных языков и профессиональной коммуникации", url: "https://kpfu.ru/institutes/institut-upravleniya-ekonomiki-i-finansov/struktura/kafedry" },
+          { name: "Кафедра природообустройства и водопользования", url: "https://kpfu.ru/institutes/institut-upravleniya-ekonomiki-i-finansov/struktura/kafedry" },
+          { name: "Кафедра математических методов и ИТ в экономике", url: "https://kpfu.ru/institutes/institut-upravleniya-ekonomiki-i-finansov/struktura/kafedry" },
+        ]
+      }
+    ]
+  },
+  {
+    id: "ifmk",
+    name: "ИФМК — Институт филологии и межкультурной коммуникации",
+    category: "humanitarian",
+    icon: "📖",
+    url: "https://ifmk.kpfu.ru",
+    depts_url: "https://kpfu.ru/philology-culture/struktura-instituta",
+    tags: ["Филология", "Лингвистика", "Культура"],
+    sections: [
+      {
+        title: "Высшая школа русской и зарубежной филологии",
+        kafedry: [
+          { name: "Кафедра русского языка и прикладной лингвистики", url: "https://kpfu.ru/philology-culture/struktura-instituta" },
+          { name: "Кафедра русской и зарубежной литературы", url: "https://kpfu.ru/philology-culture/struktura-instituta" },
+          { name: "Кафедра зарубежной литературы", url: "https://ifmk.kpfu.ru/department/kafedra-zarubezhnoj-literatury/" },
+          { name: "Кафедра иностранных языков (отделение)", url: "https://kpfu.ru/philology-culture/struktura-instituta/otdelenie-russkoj-i-zarubezhnoj-filologii-imeni/kafedra-inostrannih-yazikov" },
+        ]
+      },
+      {
+        title: "Высшая школа зарубежной филологии и межкультурной коммуникации",
+        kafedry: [
+          { name: "Кафедра зарубежной филологии и межкультурной коммуникации", url: "https://ifmk.kpfu.ru/high_school/vysshaya-shkola-zarubezhnoj-filologii-i-mezhkulturnoj-kommunikaczii-im-i-a-boduena-de-kurtene/" },
+        ]
+      }
+    ]
+  },
+  {
+    id: "psychology",
+    name: "ИПО — Институт психологии и образования",
+    category: "humanitarian",
+    icon: "🧠",
+    url: "https://kpfu.ru/psychology",
+    depts_url: "https://kpfu.ru/psychology/struktura",
+    tags: ["Психология", "Педагогика", "Образование"],
+    sections: [
+      {
+        title: null,
+        kafedry: [
+          { name: "Кафедра общей психологии", url: "https://kpfu.ru/psychology/struktura/kafedry/kafedra-obschej-psihologii" },
+          { name: "Кафедра педагогической психологии", url: "https://kpfu.ru/psychology/struktura/kafedry/kafedra-psihologii" },
+          { name: "Кафедра психологии и педагогики специального образования", url: "https://kpfu.ru/psychology/struktura/kafedry/kafedra-specialnoj-psihologii-i-korrekcionnoj" },
+          { name: "Другие кафедры института", url: "https://kpfu.ru/psychology/struktura" },
+        ]
+      }
+    ]
+  },
+  {
+    id: "isfnmk",
+    name: "ИСФНиМК — Институт социально-философских наук и массовых коммуникаций",
+    category: "humanitarian",
+    icon: "🗞️",
+    url: "https://kpfu.ru/isfnmk",
+    depts_url: "https://kpfu.ru/isfnmk/struktura",
+    tags: ["Философия", "Социология", "Журналистика"],
+    sections: [
+      {
+        title: "Отделение философии и религиоведения",
+        kafedry: [
+          { name: "Кафедра социальной философии", url: "https://kpfu.ru/isfnmk/struktura/otdeleniya/filosofii-i-religiovedeniya/kafedra-socialnoj-filosofii" },
+          { name: "Кафедра общей философии", url: "https://kpfu.ru/isfnmk/struktura" },
+          { name: "Кафедра религиоведения", url: "https://kpfu.ru/isfnmk/struktura" },
+        ]
+      },
+      {
+        title: "Отделение социально-политических наук",
+        kafedry: [
+          { name: "Кафедра политологии", url: "https://kpfu.ru/isfnmk/struktura" },
+          { name: "Кафедра социологии", url: "https://kpfu.ru/isfnmk/struktura" },
+          { name: "Кафедра конфликтологии", url: "https://kpfu.ru/isfnmk/struktura" },
+        ]
+      },
+      {
+        title: "Высшая школа журналистики и медиакоммуникаций",
+        kafedry: [
+          { name: "Кафедра телерадиожурналистики", url: "https://kpfu.ru/isfnmk/struktura" },
+          { name: "Кафедра отечественной и зарубежной журналистики", url: "https://kpfu.ru/isfnmk/struktura" },
+          { name: "Кафедра теории и практики PR", url: "https://kpfu.ru/isfnmk/struktura" },
+        ]
+      }
+    ]
+  },
+  {
+    id: "design",
+    name: "ИДПИ — Институт дизайна и пространственных искусств",
+    category: "humanitarian",
+    icon: "🎨",
+    url: "https://kpfu.ru/institutes/institut-dizajna-i-prostranstvennyh-iskusstv",
+    depts_url: "https://kpfu.ru/institutes/institut-dizajna-i-prostranstvennyh-iskusstv/struktura",
+    tags: ["Дизайн", "Архитектура", "Искусство"],
+    sections: [
+      {
+        title: null,
+        kafedry: [
+          { name: "Кафедра дизайна и национальных искусств", url: "https://kpfu.ru/institutes/institut-dizajna-i-prostranstvennyh-iskusstv/struktura/institut-dizajna-i-nacionalnyh-iskusstv" },
+          { name: "Кафедра конструктивно-дизайнерского проектирования", url: "https://kpfu.ru/institutes/institut-dizajna-i-prostranstvennyh-iskusstv/struktura/kafedra-konstruktivno-dizajnerskogo" },
+          { name: "Кафедра архитектуры и медиаискусства", url: "https://kpfu.ru/institutes/institut-dizajna-i-prostranstvennyh-iskusstv/struktura/kafedra-arhitektury-i-mediaiskusstva" },
+        ]
+      }
+    ]
+  }
+];
+
+
+function countKafedry(inst) {
+  return inst.sections.reduce((sum, s) => sum + s.kafedry.length, 0);
+}
+
+function renderInstList(list) {
+  const container = document.getElementById('instList');
+  container.innerHTML = '';
+  document.getElementById('instCount').textContent = list.length + ' подразделений';
+  let lastCat = null;
+  list.forEach(inst => {
+    if (inst.category && inst.category !== lastCat) {
+      lastCat = inst.category;
+      const sep = document.createElement('div');
+      sep.className = 'cat-separator';
+      sep.textContent = inst.category === 'technical' ? '🔬 Технические' : '📚 Гуманитарные';
+      container.appendChild(sep);
+    }
+    const total = countKafedry(inst);
+    const el = document.createElement('div');
+    el.className = 'inst-item';
+    el.dataset.id = inst.id;
+    el.innerHTML = `
+      <div class="inst-icon">${inst.icon}</div>
+      <div class="inst-info">
+        <div class="inst-name">${inst.name}</div>
+        <div class="inst-meta">${inst.sections.length > 1 ? inst.sections.length + ' отделения/школы' : 'Институт'}</div>
+      </div>
+      <div class="inst-num">${total}</div>
+    `;
+    el.addEventListener('click', () => selectInstitute(inst.id));
+    container.appendChild(el);
+  });
+}
+
+function filterInstitutes(q) {
+  const lower = q.toLowerCase();
+  const filtered = lower ? INSTITUTES.filter(i =>
+    i.name.toLowerCase().includes(lower) ||
+    i.tags.some(t => t.toLowerCase().includes(lower))
+  ) : INSTITUTES;
+  renderInstList(filtered);
+  if (currentId) {
+    const el = document.querySelector(`.inst-item[data-id="${currentId}"]`);
+    if (el) el.classList.add('active');
+  }
+}
+
+let currentId = null;
+
+function selectInstitute(id) {
+  currentId = id;
+  document.querySelectorAll('.inst-item').forEach(el => el.classList.toggle('active', el.dataset.id === id));
+  const inst = INSTITUTES.find(i => i.id === id);
+  if (!inst) return;
+  const panel = document.getElementById('rightPanel');
+  const total = countKafedry(inst);
+  let sectionsHTML = '';
+  inst.sections.forEach(sec => {
+    const kafsHTML = sec.kafedry.map(k =>
+      `<div class="kaf-card"><div class="kaf-dot"></div><a href="${k.url}" target="_blank" rel="noopener noreferrer">${k.name}</a></div>`
+    ).join('');
+    sectionsHTML += `
+      <div class="dept-section">
+        ${sec.title ? `<div class="section-title">${sec.title}</div>` : ''}
+        <div class="kaf-grid">${kafsHTML}</div>
+      </div>`;
+  });
+  const tagsHTML = inst.tags.map(t => `<span class="dept-tag">${t}</span>`).join('');
+  panel.innerHTML = `
+    <div class="dept-header">
+      <div class="dept-header-top">
+        <div class="dept-title-block">
+          <div class="dept-icon-big">${inst.icon}</div>
+          <div class="dept-title"><a href="${inst.url}" target="_blank" rel="noopener noreferrer">${inst.name}</a></div>
+        </div>
+        <div class="dept-badge">${total} кафедр</div>
+      </div>
+      <div class="dept-tags">${tagsHTML}</div>
+      <a class="open-site-btn" href="${inst.depts_url}" target="_blank" rel="noopener noreferrer">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Страница кафедр на KPFU.RU
+      </a>
+    </div>
+    <p class="sections-label">Кафедры института</p>
+    ${sectionsHTML}
+  `;
+}
+
+// Init
+renderInstList(INSTITUTES);
+// Auto-select first
+selectInstitute(INSTITUTES[0].id);
+
+// ====== СХЕМА КФУ ======
+function buildSchema() {
+  const gridTech = document.getElementById('schemaGridTech');
+  const gridHum  = document.getElementById('schemaGridHum');
+  gridTech.innerHTML = '';
+  gridHum.innerHTML  = '';
+
+  INSTITUTES.forEach(inst => {
+    const card = document.createElement('div');
+    card.className = 'schema-inst-card';
+    card.dataset.id = inst.id;
+
+    // Секции с кафедрами
+    let deptsHTML = '';
+    inst.sections.forEach(sec => {
+      if (sec.title) deptsHTML += `<div class="schema-sect-label">${sec.title}</div>`;
+      sec.kafedry.forEach(k => {
+        deptsHTML += `<div class="schema-kaf-item"><div class="schema-kaf-dot"></div><a href="${k.url}" target="_blank" rel="noopener noreferrer">${k.name}</a></div>`;
+      });
+    });
+
+    card.innerHTML = `
+      <div class="schema-inst-card-head">
+        <span class="schema-inst-card-icon">${inst.icon}</span>
+        <a href="${inst.url}" target="_blank" rel="noopener noreferrer" class="schema-inst-card-name" onclick="event.stopPropagation()">${inst.name}</a>
+      </div>
+      <div class="expand-hint" id="hint-${inst.id}">▼ нажмите, чтобы раскрыть кафедры</div>
+      <div class="schema-depts">
+        ${deptsHTML}
+        <div style="margin-top:8px;padding-top:6px;border-top:1px dashed var(--border)">
+          <span onclick="event.stopPropagation();switchTab('catalog');selectInstitute('${inst.id}')"
+            style="font-size:11px;color:var(--accent);cursor:pointer;font-weight:600;">
+            📋 Открыть подробно в каталоге →
+          </span>
+        </div>
+      </div>
+    `;
+
+    card.addEventListener('click', (e) => {
+      if (e.target.tagName === 'A') return;
+      const isExpanded = card.classList.toggle('expanded');
+      document.getElementById('hint-' + inst.id).style.display = isExpanded ? 'none' : '';
+    });
+
+    if (inst.category === 'technical') gridTech.appendChild(card);
+    else gridHum.appendChild(card);
+  });
+}
+buildSchema();
+
+// ====== ПЕРЕКЛЮЧЕНИЕ ТАБОВ ======
+function switchTab(tab) {
+  const schema = document.getElementById('schemaPage');
+  const catalog = document.getElementById('catalogPage');
+  const btnSchema = document.getElementById('btnSchema');
+  const btnCatalog = document.getElementById('btnCatalog');
+  if (tab === 'schema') {
+    schema.style.display = 'block';
+    catalog.style.display = 'none';
+    btnSchema.classList.add('tab-active');
+    btnCatalog.classList.remove('tab-active');
+  } else {
+    schema.style.display = 'none';
+    catalog.style.display = 'grid';
+    btnSchema.classList.remove('tab-active');
+    btnCatalog.classList.add('tab-active');
+  }
+}
+// Начальное состояние — схема
+switchTab('schema');
+
+// Theme toggle
+const toggle = document.querySelector('[data-theme-toggle]');
+const root = document.documentElement;
+let theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+root.setAttribute('data-theme', theme);
+toggle.addEventListener('click', () => {
+  theme = theme === 'dark' ? 'light' : 'dark';
+  root.setAttribute('data-theme', theme);
+  toggle.textContent = theme === 'dark' ? '☀️ Тема' : '🌙 Тема';
+});
+</script>
+</body>
+</html>
