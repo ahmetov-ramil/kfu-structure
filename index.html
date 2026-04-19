@@ -1003,7 +1003,9 @@ function buildSchema() {
     card.innerHTML = `
       <div class="schema-inst-card-head">
         <span class="schema-inst-card-icon">${inst.icon}</span>
-        <a href="${inst.url}" target="_blank" rel="noopener noreferrer" class="schema-inst-card-name" onclick="event.stopPropagation()">${inst.name}</a>
+       <a href="${inst.url}" target="_blank" rel="noopener noreferrer" class="schema-inst-card-name">
+  ${inst.name} <span style="font-size:11px; opacity:0.6;">↗</span>
+</a>
       </div>
       <div class="schema-depts">
         ${deptsHTML}
